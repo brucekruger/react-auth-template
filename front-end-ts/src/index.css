@@ -56,6 +56,14 @@ button {
     padding: 32px;
 }
 
+.loading {
+    background-color: #ffd700;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
 .success {
     background-color: #90ee90;
     border-radius: 8px;

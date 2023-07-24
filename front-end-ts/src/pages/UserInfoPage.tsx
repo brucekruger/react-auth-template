@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useToken } from '../auth/useToken';
 import { useUser } from '../auth/useUser';
@@ -21,40 +22,28 @@ export const UserInfoPage = () => {
     const [favoriteFood, setFavoriteFood] = useState<string>(info.favoriteFood || '');
     const [hairColor, setHairColor] = useState<string>(info.hairColor || '');
     const [bio, setBio] = useState<string>(info.bio || '');
-
-    // These state variables control whether or not we show
-    // the success and error message sections after making
-    // a network request (see JSX below).
-    const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
-    const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
-
-    // This useEffect hook automatically hides the
-    // success and error messages after 3 seconds when they're shown.
-    // Just a little user interface improvement.
-    useEffect(() => {
-        if (showSuccessMessage || showErrorMessage) {
-            setTimeout(() => {
-                setShowSuccessMessage(false);
-                setShowErrorMessage(false);
-            }, 3000);
+    
+    const mutation = useMutation({
+        mutationFn: async () => {
+            return await axios.put(`/api/users/${id}`, {
+                    favoriteFood,
+                    hairColor,
+                    bio,
+                }, {
+                    headers: { Authorization: `Bearer ${token}`},
+                });
+            },
+        onError: (error, variables, context) => {
+            console.log(error);
+        },
+        onSuccess: (data, variables, context) => {
+            const { token: newToken } = data.data;
+            setToken(newToken);
         }
-    }, [showSuccessMessage, showErrorMessage]);
+    })
 
-    const saveChanges = async () => {
-		try {
-			const response = await axios.put(`/api/users/${id}`, {
-				favoriteFood,
-				hairColor,
-				bio,
-			}, {
-				headers: { Authorization: `Bearer ${token}`},
-			});
-			const { token: newToken } = response.data;
-			setToken(newToken);
-			setShowSuccessMessage(true);
-		} catch (e) {
-			setShowErrorMessage(true);
-		}
+    const saveChanges = () => {
+		mutation.mutate();
     }
 
     const logOut = () => {
@@ -73,8 +62,9 @@ export const UserInfoPage = () => {
         <div className="content-container">
             <h1>Info for {email}</h1>
 			{!isVerified && <div className="fail">You won't be able to make any changes until you verify your email</div>}
-            {showSuccessMessage && <div className="success">Successfully saved user data!</div>}
-            {showErrorMessage && <div className="fail">Uh oh... something went wrong and we couldn't save changes</div>}
+            {mutation.isLoading && <div className="loading">Updating user data...</div>}
+            {mutation.isSuccess && <div className="success">Successfully saved user data!</div>}
+            {mutation.isError && <div className="fail">Uh oh... something went wrong and we couldn't save changes</div>}
             <label>
                 Favorite Food:
                 <input
