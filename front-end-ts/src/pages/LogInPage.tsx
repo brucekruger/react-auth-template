@@ -8,7 +8,8 @@ export const LogInPage = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [shouldShowPassword, setShouldShowPassword] = useState<boolean>(false);
-    const [errorMessage, setErrorMessage] = useState<string>('');
+    // const [errorMessage, setErrorMessage] = useState<string>('');
+    const [errorMessage] = useState<string>('');
     const navigate = useNavigate();
 
     const onLogInClicked = async () => {

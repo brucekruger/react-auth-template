@@ -48,7 +48,7 @@ export const SignUpPage = () => {
             <button onClick={() => setShouldShowPassword(!shouldShowPassword)}>Show Password</button>
             <hr/>
             <button disabled={
-                    !email && !password ||
+                    (!email && !password) ||
                     password !== confirmPassword
                 }
                 onClick={onSignUpClicked}>Sign Up</button>
